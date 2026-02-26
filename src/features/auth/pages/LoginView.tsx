@@ -1,31 +1,51 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ShieldCheck, Mail, KeyRound, ArrowRight } from 'lucide-react'
+import { useAppDispatch } from '../../../app/hooks'
+import { setCredentials } from '../authSlice'
 
 export default function LoginView() {
     const [step, setStep] = useState<'EMAIL' | 'OTP'>('EMAIL')
     const [email, setEmail] = useState('')
     const [otp, setOtp] = useState('')
     const [timeLeft, setTimeLeft] = useState(0)
-    const navigate = useNavigate()
 
-    // Countdown Timer Logic [cite: 232-234]
+    const navigate = useNavigate()
+    const dispatch = useAppDispatch()
+
+    // Handle countdown timer for OTP resend
     useEffect(() => {
         if (timeLeft <= 0) return
         const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000)
         return () => clearInterval(timer)
     }, [timeLeft])
 
-    const handleSendOtp = (e: React.FormEvent) => {
+    // Strictly typing the event to HTMLFormElement to resolve React 19 deprecation warnings
+    const handleSendOtp = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!email) return
+
+        // Mocking API Call
         setStep('OTP')
         setTimeLeft(60)
     }
 
-    const handleVerifyOtp = (e: React.FormEvent) => {
+    const handleVerifyOtp = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+
+        // Dummy verification logic
         if (otp.length === 4) {
+            // 1. Store mock data and token in Redux memory state 
+            dispatch(setCredentials({
+                user: {
+                    adminId: 'ADM-9988',
+                    email: email,
+                    adminRole: 'Support Admin' // Used for RBAC routing and based on this we are displaying the sidebar and profile access
+                },
+                accessToken: 'mock_jwt_access_token_abc123'
+            }))
+
+            // 2. Redirect to the main admin layout 
             navigate('/')
         }
     }
@@ -33,7 +53,8 @@ export default function LoginView() {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
             <div className="max-w-md w-full admin-card p-0 overflow-hidden border-t-4 border-t-primary-500">
-                {/* Header Section - Now White & Saffron */}
+
+                {/* Header Section */}
                 <div className="bg-white p-6 text-center border-b border-slate-100">
                     <div className="mx-auto w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center mb-3">
                         <ShieldCheck className="text-primary-500 w-7 h-7" />

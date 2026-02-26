@@ -1,0 +1,147 @@
+import React, { useState, useRef, useEffect } from 'react'
+import { Search, User, Settings, LogOut, Sun, Moon, Menu } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAppSelector, useAppDispatch } from '../../app/hooks'
+import { logOut } from '../../features/auth/authSlice'
+import NotificationBell from './NotificationBell'
+
+const Header = React.memo(() => {
+    const { user } = useAppSelector((state) => state.auth)
+    const dispatch = useAppDispatch()
+    const navigate = useNavigate()
+
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const [isDarkMode, setIsDarkMode] = useState(false)
+    const dropdownRef = useRef<HTMLDivElement>(null)
+
+    // Check initial theme
+    useEffect(() => {
+        if (document.documentElement.classList.contains('dark')) {
+            setIsDarkMode(true)
+        }
+    }, [])
+
+    // Global Theme Toggle Function
+    const toggleTheme = () => {
+        document.documentElement.classList.toggle('dark')
+        setIsDarkMode(!isDarkMode)
+    }
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    const handleLogout = () => {
+        dispatch(logOut())
+        navigate('/login', { replace: true })
+    }
+
+    return (
+        <header className="h-16 bg-white shadow-sm border-b border-slate-100 flex items-center justify-between px-4 sm:px-8 z-30 sticky top-0 transition-colors duration-300">
+
+            {/* Left Side: Mobile Menu & Search */}
+            <div className="flex items-center gap-4">
+                {/* Hamburger Menu (Visible only on Mobile) */}
+                <button className="p-2 text-slate-500 hover:text-primary-600 md:hidden transition-colors cursor-pointer">
+                    <Menu className="w-6 h-6" />
+                </button>
+
+                {/* Global Search (Hidden on Mobile) */}
+                <div className="hidden md:flex items-center w-72 lg:w-96 relative">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3" />
+                    <input
+                        type="text"
+                        placeholder="Search citizens, complaints..."
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all text-slate-800"
+                    />
+                </div>
+            </div>
+
+            {/* Right Side: Theme, Notifications, Profile */}
+            <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
+
+                {/* Theme Toggle Button */}
+                <button
+                    onClick={toggleTheme}
+                    className="p-2 text-slate-500 hover:text-primary-600 hover:bg-slate-50 rounded-full transition-colors cursor-pointer"
+                    title="Toggle Dark Mode"
+                >
+                    {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
+                {/* Notifications Bell */}
+                <NotificationBell />
+
+                <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
+
+                {/* Profile Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                    <div
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    >
+                        <div className="text-right hidden md:block">
+                            <p className="text-sm font-bold text-slate-800 group-hover:text-primary-600 transition-colors">
+                                {user?.adminRole || 'Administrator'}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                                {user?.email || 'admin@citizen.gov'}
+                            </p>
+                        </div>
+
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold shadow-inner border border-primary-200 group-hover:bg-primary-500 group-hover:text-white transition-colors">
+                            {user?.adminRole ? user.adminRole.charAt(0) : 'A'}
+                        </div>
+                    </div>
+
+                    {/* Dropdown Menu */}
+                    {isDropdownOpen && (
+                        <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="p-4 border-b border-slate-50 bg-slate-50/50 md:hidden">
+                                <p className="text-sm font-bold text-slate-800">{user?.adminRole}</p>
+                                <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                            </div>
+                            <div className="p-2">
+                                <Link
+                                    to="/profile"
+                                    onClick={() => setIsDropdownOpen(false)}
+                                    className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
+                                >
+                                    <User className="w-4 h-4" /> My Profile
+                                </Link>
+
+                                {user?.adminRole === 'Super Admin' && (
+                                    <Link
+                                        to="/settings"
+                                        onClick={() => setIsDropdownOpen(false)}
+                                        className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
+                                    >
+                                        <Settings className="w-4 h-4" /> System Settings
+                                    </Link>
+                                )}
+                            </div>
+                            <div className="p-2 border-t border-slate-50">
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors font-medium cursor-pointer"
+                                >
+                                    <LogOut className="w-4 h-4" /> Secure Logout
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </header>
+    )
+})
+
+Header.displayName = 'Header'
+export default Header
