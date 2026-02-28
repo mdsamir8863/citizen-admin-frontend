@@ -4,8 +4,8 @@ import authReducer from '../features/auth/authSlice'
 export const store = configureStore({
     reducer: {
         auth: authReducer,
-        // Note: Future mein jab backend aayega, hum yahan RTK Query ka apiSlice add karenge
-        // [apiSlice.reducerPath]: apiSlice.reducer,
+      // Add other reducers here as you create them
+      // For example, if you have a userSlice, you would add it like this:
     },
     devTools: import.meta.env.MODE !== 'production',
     // middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
