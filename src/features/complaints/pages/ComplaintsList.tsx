@@ -99,7 +99,7 @@ export default function ComplaintsList() {
                 <div>
                     <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
                         <AlertCircle className="w-6 h-6 text-primary-500" />
-                        Ticket Inbox
+                        Ticket And Complain Inbox
                     </h2>
                     <p className="text-sm text-slate-500 mt-1">
                         Manage, assign, and resolve citizen issues across all service categories.
