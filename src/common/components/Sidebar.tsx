@@ -10,7 +10,7 @@ const NAVIGATION_ITEMS = [
     { name: 'User Management', path: '/users', icon: Users, allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
     { name: 'Services', path: '/services', icon: FileText, allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
     { name: 'Ticket & Complains', path: '/complaints', icon: AlertCircle, allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.SUPPORT_ADMIN] },
-    // { name: 'Live Chat', path: '/chat', icon: MessageSquare, allowedRoles: [ROLES.SUPER_ADMIN, ROLES.SUPPORT_ADMIN] },
+    { name: 'Live Chat', path: '/chat', icon: MessageSquare, allowedRoles: [ROLES.SUPER_ADMIN, ROLES.SUPPORT_ADMIN] },
 ]
 
 interface SidebarProps {
